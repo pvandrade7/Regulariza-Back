@@ -1,0 +1,100 @@
+// use prisma-8
+// Contract inferred from the live database schema. Edit as needed, then run `prisma contract emit`.
+
+model Obrigacoes {
+  id                Int                 @id(map: "obrigacoes_pkey") @default(autoincrement())
+  nome              VarChar(150)
+  descricao         String?
+  categoria         VarChar(100)
+  periodicidade     VarChar(50)?
+  prazo             VarChar(100)?
+  orgaoRelacionado  VarChar(150)?       @map("orgao_relacionado")
+  criterios         Criterios[]
+  empresaObrigacoes EmpresaObrigacoes[]
+
+  @@map("obrigacoes")
+}
+
+model Criterios {
+  id          Int          @id(map: "criterios_pkey") @default(autoincrement())
+  obrigacaoId Int          @map("obrigacao_id")
+  campo       VarChar(100)
+  operador    VarChar(20)
+  valor       VarChar(150)
+  obrigacao   Obrigacoes   @relation(fields: [obrigacaoId], references: [id], onDelete: Cascade, map: "fk_criterio_obrigacao", index: false)
+
+  @@map("criterios")
+}
+
+model RegimeJuridico {
+  id       Int          @id(map: "regime_juridico_pkey") @default(autoincrement())
+  nome     VarChar(100) @unique(map: "regime_juridico_nome_key")
+  empresas Empresa[]
+
+  @@map("regime_juridico")
+}
+
+model Usuario {
+  id       Uuid         @id(map: "usuario_pkey") @default(sql`gen_random_uuid()`)
+  nome     VarChar(150)
+  email    VarChar(255) @unique(map: "usuario_email_key")
+  empresas Empresa[]
+
+  @@map("usuario")
+}
+
+model Empresa {
+  id                    Uuid                  @id(map: "empresa_pkey") @default(sql`gen_random_uuid()`)
+  usuarioId             Uuid                  @map("usuario_id")
+  regimeJuridicoId      Int                   @map("regime_juridico_id")
+  nome                  VarChar(150)
+  cpf                   VarChar(11)?          @unique(map: "empresa_cpf_key")
+  cnpj                  VarChar(14)?          @unique(map: "empresa_cnpj_key")
+  atividade             VarChar(150)
+  porte                 VarChar(50)?
+  municipio             VarChar(100)
+  estado                VarChar(2)
+  numeroFuncionarios    Int                   @default(0) @map("numero_funcionarios")
+  estabelecimentoFisico Boolean               @default(false) @map("estabelecimento_fisico")
+  empresaContratacoes   EmpresaContratacoes[]
+  empresaObrigacoes     EmpresaObrigacoes[]
+  regimeJuridico        RegimeJuridico        @relation(fields: [regimeJuridicoId], references: [id], map: "fk_empresa_regime_juridico", index: false)
+  usuario               Usuario               @relation(fields: [usuarioId], references: [id], onDelete: Cascade, map: "fk_empresa_usuario", index: false)
+
+  @@check(expression: "(numero_funcionarios >= 0)", map: "chk_numero_funcionarios")
+  @@map("empresa")
+}
+
+model TiposContratacao {
+  id                  Int                   @id(map: "tipos_contratacao_pkey") @default(autoincrement())
+  nome                VarChar(100)          @unique(map: "tipos_contratacao_nome_key")
+  empresaContratacoes EmpresaContratacoes[]
+
+  @@map("tipos_contratacao")
+}
+
+model EmpresaContratacoes {
+  id                Int              @id(map: "empresa_contratacoes_pkey") @default(autoincrement())
+  empresaId         Uuid             @map("empresa_id")
+  tipoContratacaoId Int              @map("tipo_contratacao_id")
+  quantidade        Int              @default(0)
+  empresa           Empresa          @relation(fields: [empresaId], references: [id], onDelete: Cascade, map: "fk_empresa_contratacoes_empresa", index: false)
+  tipoContratacao   TiposContratacao @relation(fields: [tipoContratacaoId], references: [id], map: "fk_empresa_contratacoes_tipo", index: false)
+
+  @@unique([empresaId, tipoContratacaoId], map: "uq_empresa_tipo_contratacao")
+  @@check(expression: "(quantidade >= 0)", map: "chk_quantidade_contratacao")
+  @@map("empresa_contratacoes")
+}
+
+model EmpresaObrigacoes {
+  id           Int         @id(map: "empresa_obrigacoes_pkey") @default(autoincrement())
+  empresaId    Uuid        @map("empresa_id")
+  obrigacoesId Int         @map("obrigacoes_id")
+  status       VarChar(30) @default("Pendente")
+  vencimento   Date?
+  empresa      Empresa     @relation(fields: [empresaId], references: [id], onDelete: Cascade, map: "fk_empresa_obrigacoes_empresa", index: false)
+  obrigacoes   Obrigacoes  @relation(fields: [obrigacoesId], references: [id], onDelete: Cascade, map: "fk_empresa_obrigacoes_obrigacao", index: false)
+
+  @@unique([empresaId, obrigacoesId], map: "uq_empresa_obrigacao")
+  @@map("empresa_obrigacoes")
+}
