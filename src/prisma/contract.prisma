@@ -39,7 +39,11 @@ model Usuario {
   nome     VarChar(150)
   email    VarChar(255) @unique(map: "usuario_email_key")
   empresas Empresa[]
+  senhaHash String? @map("senha_hash")
+  sessoes AuthSessao[]
 
+  @@index(expression: "lower(btrim(email::text))", unique: true, map: "usuario_email_normalizado_key")
+  @@rls
   @@map("usuario")
 }
 
@@ -62,6 +66,7 @@ model Empresa {
   usuario               Usuario               @relation(fields: [usuarioId], references: [id], onDelete: Cascade, map: "fk_empresa_usuario", index: false)
 
   @@check(expression: "(numero_funcionarios >= 0)", map: "chk_numero_funcionarios")
+  @@rls
   @@map("empresa")
 }
 
@@ -83,6 +88,7 @@ model EmpresaContratacoes {
 
   @@unique([empresaId, tipoContratacaoId], map: "uq_empresa_tipo_contratacao")
   @@check(expression: "(quantidade >= 0)", map: "chk_quantidade_contratacao")
+  @@rls
   @@map("empresa_contratacoes")
 }
 
@@ -96,5 +102,29 @@ model EmpresaObrigacoes {
   obrigacoes   Obrigacoes  @relation(fields: [obrigacoesId], references: [id], onDelete: Cascade, map: "fk_empresa_obrigacoes_obrigacao", index: false)
 
   @@unique([empresaId, obrigacoesId], map: "uq_empresa_obrigacao")
+  @@rls
   @@map("empresa_obrigacoes")
+}
+
+// Hash nulo preserva contas antigas bloqueadas até ativação verificada.
+model AuthSessao {
+  tokenHash VarChar(64) @id(map: "auth_sessoes_pkey") @map("token_hash")
+  usuarioId Uuid @map("usuario_id")
+  expiraEm Timestamptz(6) @map("expira_em")
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade, map: "auth_sessoes_usuario_id_fkey", index: false)
+
+  @@index([usuarioId], map: "auth_sessoes_usuario_idx")
+  @@index([expiraEm], map: "auth_sessoes_expiracao_idx")
+  @@rls
+  @@map("auth_sessoes")
+}
+
+model AuthTentativa {
+  chave VarChar(64) @id(map: "auth_tentativas_pkey")
+  quantidade Int
+  reiniciaEm Timestamptz(6) @map("reinicia_em")
+
+  @@index([reiniciaEm], map: "auth_tentativas_expiracao_idx")
+  @@rls
+  @@map("auth_tentativas")
 }

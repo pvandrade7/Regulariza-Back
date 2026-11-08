@@ -15,7 +15,7 @@ function prepararPerfil(empresa) {
     };
 }
 
-export async function sincronizarObrigacoes(empresaId, dataBase) {
+export async function sincronizarObrigacoes(empresaId, dataBase, usuarioId) {
     const client = await pool.connect();
 
     try {
@@ -23,8 +23,8 @@ export async function sincronizarObrigacoes(empresaId, dataBase) {
 
         // Impede sincronizações simultâneas da mesma empresa.
         const empresaResult = await client.query(
-            "SELECT * FROM empresa WHERE id = $1 FOR UPDATE",
-            [empresaId]
+            "SELECT * FROM empresa WHERE id = $1 AND usuario_id = $2 FOR UPDATE",
+            [empresaId, usuarioId]
         );
 
         const empresa = empresaResult.rows[0];
@@ -130,7 +130,11 @@ export async function sincronizarObrigacoes(empresaId, dataBase) {
             totalAplicaveis: aplicaveis.length,
             vinculosCriados: criadas,
             vencimentosPreenchidos,
-            mensagem: "Sincronização concluída."
+            mensagem: criteriosResult.rows.length === 0
+                ? "Sincronização concluída, mas não há critérios regulatórios cadastrados; nenhuma aplicabilidade pôde ser determinada."
+                : aplicaveis.length === 0
+                    ? "Sincronização concluída. Nenhuma obrigação aplicável foi identificada pelos critérios cadastrados."
+                    : "Sincronização concluída."
         };
 
     } catch (error) {

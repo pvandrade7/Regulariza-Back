@@ -36,7 +36,7 @@ export async function listarObrigacoesAplicaveis(req, res) {
         }
 
         const empresa = await db.orm.public.Empresa
-            .where({ id })
+            .where({ id, usuarioId: req.usuario.id })
             .first();
 
         if (!empresa) {
@@ -90,7 +90,7 @@ export async function listarObrigacoesAplicaveis(req, res) {
         );
 
         const aplicaveis = resultados
-            .filter((resultado) => resultado.aplicavel)
+            .filter((resultado) => vinculosPorObrigacao.has(resultado.id))
             .map((resultado) => {
                 const detalhes = detalhesPorId.get(resultado.id);
                 const vinculo = vinculosPorObrigacao.get(resultado.id);
@@ -102,7 +102,7 @@ export async function listarObrigacoesAplicaveis(req, res) {
                     periodicidade: detalhes.periodicidade,
                     prazo: detalhes.prazo,
                     orgaoRelacionado: detalhes.orgaoRelacionado,
-                    status: vinculo?.status ?? "Pendente",
+                    status: vinculo.status,
                     vencimento: vinculo?.vencimento ?? null
                 };
             });
@@ -123,7 +123,7 @@ export async function listarObrigacoesAplicaveis(req, res) {
         });
 
     } catch (error) {
-        console.error("Erro ao listar obrigações:", error);
+        console.error("Erro ao listar obrigações:", error.code || error.name);
 
         return res.status(500).json({
             mensagem: "Erro ao consultar obrigações aplicáveis."

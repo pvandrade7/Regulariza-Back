@@ -5,10 +5,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --experimental-test-module-mocks --test test/*.test.js",
     "postinstall": "prisma skills sync || exit 0",
     "contract:emit": "prisma contract emit",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "test:postgres": "node test/postgres.integration.mjs",
+    "auth:migrate:check": "node scripts/migrate-auth.js",
+    "auth:migrate": "node scripts/migrate-auth.js --apply",
+    "auth:prune": "node scripts/prune-auth.js"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +21,7 @@
     "@js-temporal/polyfill": "^0.5.1",
     "@prisma/client": "^7.10.0",
     "@prisma/orm-postgres": "^8.0.0-rc.14",
+    "argon2": "^0.45.2",
     "dotenv": "^18.0.5",
     "express": "^5.2.1",
     "pg": "^8.23.1"

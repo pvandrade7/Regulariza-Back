@@ -19,9 +19,6 @@ export async function sincronizarObrigacoesController(req, res) {
         const { id } = req.params;
         const { dataBase } = req.body ?? {};
 
-        console.log("BODY RECEBIDO:", req.body);
-        console.log("DATA BASE:", dataBase);
-        console.log("TIPO:", typeof dataBase);
 
         if (!validarUuid(id)) {
             return res.status(400).json({
@@ -37,7 +34,8 @@ export async function sincronizarObrigacoesController(req, res) {
 
         const resultado = await sincronizarObrigacoes(
             id,
-            dataBase
+            dataBase,
+            req.usuario.id
         );
 
         if (!resultado) {
@@ -49,7 +47,7 @@ export async function sincronizarObrigacoesController(req, res) {
         return res.status(200).json(resultado);
 
     } catch (error) {
-        console.error("Erro na sincronização:", error);
+        console.error("Erro na sincronização:", error.code || error.name);
 
         return res.status(500).json({
             mensagem: "Erro ao sincronizar obrigações."

@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'e66d2344333c3fb331921bfb067a6b35f6e7f25c93f99a5abed0f24581a5f94a'>;
+  StorageHashBase<'6f44d0972f8b69dd4d368ca21b65baac06856357adee0fd03c76ee079326bbff'>;
 export type ExecutionHash = ExecutionHashBase<string>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
@@ -249,6 +249,16 @@ type DefaultLiteralValue<CodecId extends string, Encoded> = CodecId extends keyo
 
 export type FieldOutputTypes = {
   readonly public: {
+    readonly AuthSessao: {
+      readonly expiraEm: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly tokenHash: Varchar<64>;
+      readonly usuarioId: CodecTypes['pg/uuid@1']['output'];
+    };
+    readonly AuthTentativa: {
+      readonly chave: Varchar<64>;
+      readonly quantidade: CodecTypes['pg/int4@1']['output'];
+      readonly reiniciaEm: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    };
     readonly Criterios: {
       readonly campo: Varchar<100>;
       readonly id: CodecTypes['pg/int4@1']['output'];
@@ -304,11 +314,22 @@ export type FieldOutputTypes = {
       readonly email: Varchar<255>;
       readonly id: CodecTypes['pg/uuid@1']['output'];
       readonly nome: Varchar<150>;
+      readonly senhaHash: CodecTypes['pg/text@1']['output'] | null;
     };
   };
 };
 export type FieldInputTypes = {
   readonly public: {
+    readonly AuthSessao: {
+      readonly expiraEm: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly tokenHash: CodecTypes['sql/varchar@1']['input'];
+      readonly usuarioId: CodecTypes['pg/uuid@1']['input'];
+    };
+    readonly AuthTentativa: {
+      readonly chave: CodecTypes['sql/varchar@1']['input'];
+      readonly quantidade: CodecTypes['pg/int4@1']['input'];
+      readonly reiniciaEm: CodecTypes['pg/timestamptz-temporal@1']['input'];
+    };
     readonly Criterios: {
       readonly campo: CodecTypes['sql/varchar@1']['input'];
       readonly id: CodecTypes['pg/int4@1']['input'];
@@ -364,11 +385,22 @@ export type FieldInputTypes = {
       readonly email: CodecTypes['sql/varchar@1']['input'];
       readonly id: CodecTypes['pg/uuid@1']['input'];
       readonly nome: CodecTypes['sql/varchar@1']['input'];
+      readonly senhaHash: CodecTypes['pg/text@1']['input'] | null;
     };
   };
 };
 export type StorageColumnTypes = {
   readonly public: {
+    readonly auth_sessoes: {
+      readonly expira_em: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly token_hash: Varchar<64>;
+      readonly usuario_id: CodecTypes['pg/uuid@1']['output'];
+    };
+    readonly auth_tentativas: {
+      readonly chave: Varchar<64>;
+      readonly quantidade: CodecTypes['pg/int4@1']['output'];
+      readonly reinicia_em: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    };
     readonly criterios: {
       readonly campo: Varchar<100>;
       readonly id: CodecTypes['pg/int4@1']['output'];
@@ -424,11 +456,22 @@ export type StorageColumnTypes = {
       readonly email: Varchar<255>;
       readonly id: CodecTypes['pg/uuid@1']['output'];
       readonly nome: Varchar<150>;
+      readonly senha_hash: CodecTypes['pg/text@1']['output'] | null;
     };
   };
 };
 export type StorageColumnInputTypes = {
   readonly public: {
+    readonly auth_sessoes: {
+      readonly expira_em: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly token_hash: CodecTypes['sql/varchar@1']['input'];
+      readonly usuario_id: CodecTypes['pg/uuid@1']['input'];
+    };
+    readonly auth_tentativas: {
+      readonly chave: CodecTypes['sql/varchar@1']['input'];
+      readonly quantidade: CodecTypes['pg/int4@1']['input'];
+      readonly reinicia_em: CodecTypes['pg/timestamptz-temporal@1']['input'];
+    };
     readonly criterios: {
       readonly campo: CodecTypes['sql/varchar@1']['input'];
       readonly id: CodecTypes['pg/int4@1']['input'];
@@ -484,11 +527,25 @@ export type StorageColumnInputTypes = {
       readonly email: CodecTypes['sql/varchar@1']['input'];
       readonly id: CodecTypes['pg/uuid@1']['input'];
       readonly nome: CodecTypes['sql/varchar@1']['input'];
+      readonly senha_hash: CodecTypes['pg/text@1']['input'] | null;
     };
   };
 };
 
 export namespace Models {
+  export type public_AuthSessao = {
+    expiraEm: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    tokenHash: Varchar<64>;
+    usuarioId: CodecTypes['pg/uuid@1']['output'];
+    usuario: public_Usuario;
+    readonly [RelationKeys]?: 'usuario';
+  };
+  export type public_AuthTentativa = {
+    chave: Varchar<64>;
+    quantidade: CodecTypes['pg/int4@1']['output'];
+    reiniciaEm: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    readonly [RelationKeys]?: never;
+  };
   export type public_Criterios = {
     campo: Varchar<100>;
     id: CodecTypes['pg/int4@1']['output'];
@@ -565,13 +622,17 @@ export namespace Models {
     email: Varchar<255>;
     id: CodecTypes['pg/uuid@1']['output'];
     nome: Varchar<150>;
+    senhaHash: CodecTypes['pg/text@1']['output'] | null;
     empresas: public_Empresa[];
-    readonly [RelationKeys]?: 'empresas';
+    sessoes: public_AuthSessao[];
+    readonly [RelationKeys]?: 'empresas' | 'sessoes';
   };
 }
 
 export declare const models: {
   public: {
+    AuthSessao: Models.public_AuthSessao;
+    AuthTentativa: Models.public_AuthTentativa;
     Criterios: Models.public_Criterios;
     Empresa: Models.public_Empresa;
     EmpresaContratacoes: Models.public_EmpresaContratacoes;
@@ -601,6 +662,93 @@ type ContractBase = Omit<
         readonly kind: 'postgres-schema';
         readonly entries: {
           readonly table: {
+            readonly auth_sessoes: {
+              columns: {
+                readonly expira_em: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 6 };
+                };
+                readonly token_hash: {
+                  readonly nativeType: 'character varying';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly length: 64 };
+                };
+                readonly usuario_id: {
+                  readonly nativeType: 'uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                };
+              };
+              primaryKey: {
+                readonly columns: readonly ['token_hash'];
+                readonly name: 'auth_sessoes_pkey';
+              };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'auth_sessoes_expiracao_idx';
+                  readonly columns: readonly ['expira_em'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'auth_sessoes_usuario_idx';
+                  readonly columns: readonly ['usuario_id'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'auth_sessoes';
+                    readonly columns: readonly ['usuario_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'usuario';
+                    readonly columns: readonly ['id'];
+                  };
+                  readonly name: 'auth_sessoes_usuario_id_fkey';
+                },
+              ];
+            };
+            readonly auth_tentativas: {
+              columns: {
+                readonly chave: {
+                  readonly nativeType: 'character varying';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly length: 64 };
+                };
+                readonly quantidade: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                };
+                readonly reinicia_em: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 6 };
+                };
+              };
+              primaryKey: {
+                readonly columns: readonly ['chave'];
+                readonly name: 'auth_tentativas_pkey';
+              };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'auth_tentativas_expiracao_idx';
+                  readonly columns: readonly ['reinicia_em'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [];
+            };
             readonly criterios: {
               columns: {
                 readonly campo: {
@@ -1054,12 +1202,23 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly typeParams: { readonly length: 150 };
                 };
+                readonly senha_hash: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
               };
               primaryKey: { readonly columns: readonly ['id']; readonly name: 'usuario_pkey' };
               uniques: readonly [
                 { readonly columns: readonly ['email']; readonly name: 'usuario_email_key' },
               ];
-              indexes: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'usuario_email_normalizado_key';
+                  readonly expression: 'lower(btrim(email::text))';
+                  readonly unique: true;
+                },
+              ];
               foreignKeys: readonly [];
             };
           };
@@ -1073,6 +1232,14 @@ type ContractBase = Omit<
   readonly target: 'postgres';
   readonly targetFamily: 'sql';
   readonly roots: {
+    readonly auth_sessoes: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'AuthSessao';
+    };
+    readonly auth_tentativas: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'AuthTentativa';
+    };
     readonly criterios: { readonly namespace: 'public' & NamespaceId; readonly model: 'Criterios' };
     readonly empresa: { readonly namespace: 'public' & NamespaceId; readonly model: 'Empresa' };
     readonly empresa_contratacoes: {
@@ -1101,6 +1268,87 @@ type ContractBase = Omit<
     readonly namespaces: {
       readonly public: {
         readonly models: {
+          readonly AuthSessao: {
+            readonly fields: {
+              readonly expiraEm: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly typeParams: { readonly precision: 6 };
+                };
+              };
+              readonly tokenHash: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly typeParams: { readonly length: 64 };
+                };
+              };
+              readonly usuarioId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+            };
+            readonly relations: {
+              readonly usuario: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Usuario';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['usuarioId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'auth_sessoes';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly expiraEm: { readonly column: 'expira_em' };
+                readonly tokenHash: { readonly column: 'token_hash' };
+                readonly usuarioId: { readonly column: 'usuario_id' };
+              };
+            };
+          };
+          readonly AuthTentativa: {
+            readonly fields: {
+              readonly chave: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly typeParams: { readonly length: 64 };
+                };
+              };
+              readonly quantidade: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly reiniciaEm: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly typeParams: { readonly precision: 6 };
+                };
+              };
+            };
+            readonly relations: Record<string, never>;
+            readonly storage: {
+              readonly table: 'auth_tentativas';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly chave: { readonly column: 'chave' };
+                readonly quantidade: { readonly column: 'quantidade' };
+                readonly reiniciaEm: { readonly column: 'reinicia_em' };
+              };
+            };
+          };
           readonly Criterios: {
             readonly fields: {
               readonly campo: {
@@ -1614,12 +1862,27 @@ type ContractBase = Omit<
                   readonly typeParams: { readonly length: 150 };
                 };
               };
+              readonly senhaHash: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
             };
             readonly relations: {
               readonly empresas: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'Empresa';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['usuarioId'];
+                };
+              };
+              readonly sessoes: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'AuthSessao';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
@@ -1635,6 +1898,7 @@ type ContractBase = Omit<
                 readonly email: { readonly column: 'email' };
                 readonly id: { readonly column: 'id' };
                 readonly nome: { readonly column: 'nome' };
+                readonly senhaHash: { readonly column: 'senha_hash' };
               };
             };
           };

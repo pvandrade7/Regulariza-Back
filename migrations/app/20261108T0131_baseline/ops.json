@@ -1,0 +1,919 @@
+[
+  {
+    "id": "schema.public",
+    "label": "Create schema \"public\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create schema \"public\"",
+        "sql": "CREATE SCHEMA IF NOT EXISTS \"public\"",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.criterios",
+    "label": "Create table \"criterios\"",
+    "summary": "Creates table \"criterios\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "criterios"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"criterios\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"criterios\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"criterios\"",
+        "sql": "CREATE TABLE \"public\".\"criterios\" (\n  \"campo\" character varying(100) NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"obrigacao_id\" int4 NOT NULL,\n  \"operador\" character varying(20) NOT NULL,\n  \"valor\" character varying(150) NOT NULL,\n  CONSTRAINT \"criterios_pkey\" PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"criterios\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"criterios\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.empresa",
+    "label": "Create table \"empresa\"",
+    "summary": "Creates table \"empresa\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "empresa"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"empresa\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"empresa\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"empresa\"",
+        "sql": "CREATE TABLE \"public\".\"empresa\" (\n  \"atividade\" character varying(150) NOT NULL,\n  \"cnpj\" character varying(14),\n  \"cpf\" character varying(11),\n  \"estabelecimento_fisico\" bool DEFAULT false NOT NULL,\n  \"estado\" character varying(2) NOT NULL,\n  \"id\" uuid DEFAULT (gen_random_uuid()) NOT NULL,\n  \"municipio\" character varying(100) NOT NULL,\n  \"nome\" character varying(150) NOT NULL,\n  \"numero_funcionarios\" int4 DEFAULT 0 NOT NULL,\n  \"porte\" character varying(50),\n  \"regime_juridico_id\" int4 NOT NULL,\n  \"usuario_id\" uuid NOT NULL,\n  CONSTRAINT \"empresa_pkey\" PRIMARY KEY (\"id\"),\n  CONSTRAINT \"chk_numero_funcionarios\" CHECK ((numero_funcionarios >= 0))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"empresa\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"empresa\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.empresa_contratacoes",
+    "label": "Create table \"empresa_contratacoes\"",
+    "summary": "Creates table \"empresa_contratacoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "empresa_contratacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"empresa_contratacoes\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"empresa_contratacoes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"empresa_contratacoes\"",
+        "sql": "CREATE TABLE \"public\".\"empresa_contratacoes\" (\n  \"empresa_id\" uuid NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"quantidade\" int4 DEFAULT 0 NOT NULL,\n  \"tipo_contratacao_id\" int4 NOT NULL,\n  CONSTRAINT \"empresa_contratacoes_pkey\" PRIMARY KEY (\"id\"),\n  CONSTRAINT \"chk_quantidade_contratacao\" CHECK ((quantidade >= 0))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"empresa_contratacoes\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"empresa_contratacoes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.empresa_obrigacoes",
+    "label": "Create table \"empresa_obrigacoes\"",
+    "summary": "Creates table \"empresa_obrigacoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "empresa_obrigacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"empresa_obrigacoes\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"empresa_obrigacoes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"empresa_obrigacoes\"",
+        "sql": "CREATE TABLE \"public\".\"empresa_obrigacoes\" (\n  \"empresa_id\" uuid NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"obrigacoes_id\" int4 NOT NULL,\n  \"status\" character varying(30) DEFAULT 'Pendente' NOT NULL,\n  \"vencimento\" date,\n  CONSTRAINT \"empresa_obrigacoes_pkey\" PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"empresa_obrigacoes\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"empresa_obrigacoes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.obrigacoes",
+    "label": "Create table \"obrigacoes\"",
+    "summary": "Creates table \"obrigacoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "obrigacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"obrigacoes\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"obrigacoes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"obrigacoes\"",
+        "sql": "CREATE TABLE \"public\".\"obrigacoes\" (\n  \"categoria\" character varying(100) NOT NULL,\n  \"descricao\" text,\n  \"id\" SERIAL NOT NULL,\n  \"nome\" character varying(150) NOT NULL,\n  \"orgao_relacionado\" character varying(150),\n  \"periodicidade\" character varying(50),\n  \"prazo\" character varying(100),\n  CONSTRAINT \"obrigacoes_pkey\" PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"obrigacoes\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"obrigacoes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.regime_juridico",
+    "label": "Create table \"regime_juridico\"",
+    "summary": "Creates table \"regime_juridico\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "regime_juridico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"regime_juridico\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"regime_juridico\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"regime_juridico\"",
+        "sql": "CREATE TABLE \"public\".\"regime_juridico\" (\n  \"id\" SERIAL NOT NULL,\n  \"nome\" character varying(100) NOT NULL,\n  CONSTRAINT \"regime_juridico_pkey\" PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"regime_juridico\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"regime_juridico\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.tipos_contratacao",
+    "label": "Create table \"tipos_contratacao\"",
+    "summary": "Creates table \"tipos_contratacao\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "tipos_contratacao"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"tipos_contratacao\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"tipos_contratacao\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"tipos_contratacao\"",
+        "sql": "CREATE TABLE \"public\".\"tipos_contratacao\" (\n  \"id\" SERIAL NOT NULL,\n  \"nome\" character varying(100) NOT NULL,\n  CONSTRAINT \"tipos_contratacao_pkey\" PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"tipos_contratacao\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"tipos_contratacao\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.usuario",
+    "label": "Create table \"usuario\"",
+    "summary": "Creates table \"usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"usuario\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"usuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"usuario\"",
+        "sql": "CREATE TABLE \"public\".\"usuario\" (\n  \"email\" character varying(255) NOT NULL,\n  \"id\" uuid DEFAULT (gen_random_uuid()) NOT NULL,\n  \"nome\" character varying(150) NOT NULL,\n  CONSTRAINT \"usuario_pkey\" PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"usuario\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"usuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.empresa.empresa_cnpj_key",
+    "label": "Add unique constraint on \"empresa\" (cnpj)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "empresa_cnpj_key",
+        "table": "empresa"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"empresa_cnpj_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "empresa_cnpj_key",
+          "public",
+          "\"public\".\"empresa\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"empresa_cnpj_key\"",
+        "sql": "ALTER TABLE \"public\".\"empresa\" ADD CONSTRAINT \"empresa_cnpj_key\" UNIQUE (\"cnpj\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"empresa_cnpj_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "empresa_cnpj_key",
+          "public",
+          "\"public\".\"empresa\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.empresa.empresa_cpf_key",
+    "label": "Add unique constraint on \"empresa\" (cpf)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "empresa_cpf_key",
+        "table": "empresa"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"empresa_cpf_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "empresa_cpf_key",
+          "public",
+          "\"public\".\"empresa\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"empresa_cpf_key\"",
+        "sql": "ALTER TABLE \"public\".\"empresa\" ADD CONSTRAINT \"empresa_cpf_key\" UNIQUE (\"cpf\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"empresa_cpf_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "empresa_cpf_key",
+          "public",
+          "\"public\".\"empresa\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.empresa_contratacoes.uq_empresa_tipo_contratacao",
+    "label": "Add unique constraint on \"empresa_contratacoes\" (empresa_id, tipo_contratacao_id)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "uq_empresa_tipo_contratacao",
+        "table": "empresa_contratacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"uq_empresa_tipo_contratacao\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uq_empresa_tipo_contratacao",
+          "public",
+          "\"public\".\"empresa_contratacoes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"uq_empresa_tipo_contratacao\"",
+        "sql": "ALTER TABLE \"public\".\"empresa_contratacoes\" ADD CONSTRAINT \"uq_empresa_tipo_contratacao\" UNIQUE (\"empresa_id\", \"tipo_contratacao_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"uq_empresa_tipo_contratacao\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uq_empresa_tipo_contratacao",
+          "public",
+          "\"public\".\"empresa_contratacoes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.empresa_obrigacoes.uq_empresa_obrigacao",
+    "label": "Add unique constraint on \"empresa_obrigacoes\" (empresa_id, obrigacoes_id)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "uq_empresa_obrigacao",
+        "table": "empresa_obrigacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"uq_empresa_obrigacao\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uq_empresa_obrigacao",
+          "public",
+          "\"public\".\"empresa_obrigacoes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"uq_empresa_obrigacao\"",
+        "sql": "ALTER TABLE \"public\".\"empresa_obrigacoes\" ADD CONSTRAINT \"uq_empresa_obrigacao\" UNIQUE (\"empresa_id\", \"obrigacoes_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"uq_empresa_obrigacao\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "uq_empresa_obrigacao",
+          "public",
+          "\"public\".\"empresa_obrigacoes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.regime_juridico.regime_juridico_nome_key",
+    "label": "Add unique constraint on \"regime_juridico\" (nome)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "regime_juridico_nome_key",
+        "table": "regime_juridico"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"regime_juridico_nome_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "regime_juridico_nome_key",
+          "public",
+          "\"public\".\"regime_juridico\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"regime_juridico_nome_key\"",
+        "sql": "ALTER TABLE \"public\".\"regime_juridico\" ADD CONSTRAINT \"regime_juridico_nome_key\" UNIQUE (\"nome\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"regime_juridico_nome_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "regime_juridico_nome_key",
+          "public",
+          "\"public\".\"regime_juridico\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.tipos_contratacao.tipos_contratacao_nome_key",
+    "label": "Add unique constraint on \"tipos_contratacao\" (nome)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "tipos_contratacao_nome_key",
+        "table": "tipos_contratacao"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"tipos_contratacao_nome_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "tipos_contratacao_nome_key",
+          "public",
+          "\"public\".\"tipos_contratacao\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"tipos_contratacao_nome_key\"",
+        "sql": "ALTER TABLE \"public\".\"tipos_contratacao\" ADD CONSTRAINT \"tipos_contratacao_nome_key\" UNIQUE (\"nome\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"tipos_contratacao_nome_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "tipos_contratacao_nome_key",
+          "public",
+          "\"public\".\"tipos_contratacao\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.usuario.usuario_email_key",
+    "label": "Add unique constraint on \"usuario\" (email)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "usuario_email_key",
+        "table": "usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"usuario_email_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "usuario_email_key",
+          "public",
+          "\"public\".\"usuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"usuario_email_key\"",
+        "sql": "ALTER TABLE \"public\".\"usuario\" ADD CONSTRAINT \"usuario_email_key\" UNIQUE (\"email\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"usuario_email_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "usuario_email_key",
+          "public",
+          "\"public\".\"usuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.criterios.fk_criterio_obrigacao",
+    "label": "Add foreign key \"fk_criterio_obrigacao\" on \"criterios\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_criterio_obrigacao",
+        "table": "criterios"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_criterio_obrigacao\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_criterio_obrigacao",
+          "public",
+          "\"public\".\"criterios\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_criterio_obrigacao\"",
+        "sql": "ALTER TABLE \"public\".\"criterios\"\nADD CONSTRAINT \"fk_criterio_obrigacao\"\nFOREIGN KEY (\"obrigacao_id\")\nREFERENCES \"public\".\"obrigacoes\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_criterio_obrigacao\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_criterio_obrigacao",
+          "public",
+          "\"public\".\"criterios\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.empresa.fk_empresa_regime_juridico",
+    "label": "Add foreign key \"fk_empresa_regime_juridico\" on \"empresa\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_empresa_regime_juridico",
+        "table": "empresa"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_empresa_regime_juridico\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_empresa_regime_juridico",
+          "public",
+          "\"public\".\"empresa\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_empresa_regime_juridico\"",
+        "sql": "ALTER TABLE \"public\".\"empresa\"\nADD CONSTRAINT \"fk_empresa_regime_juridico\"\nFOREIGN KEY (\"regime_juridico_id\")\nREFERENCES \"public\".\"regime_juridico\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_empresa_regime_juridico\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_empresa_regime_juridico",
+          "public",
+          "\"public\".\"empresa\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.empresa.fk_empresa_usuario",
+    "label": "Add foreign key \"fk_empresa_usuario\" on \"empresa\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_empresa_usuario",
+        "table": "empresa"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_empresa_usuario\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_empresa_usuario",
+          "public",
+          "\"public\".\"empresa\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_empresa_usuario\"",
+        "sql": "ALTER TABLE \"public\".\"empresa\"\nADD CONSTRAINT \"fk_empresa_usuario\"\nFOREIGN KEY (\"usuario_id\")\nREFERENCES \"public\".\"usuario\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_empresa_usuario\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_empresa_usuario",
+          "public",
+          "\"public\".\"empresa\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.empresa_contratacoes.fk_empresa_contratacoes_empresa",
+    "label": "Add foreign key \"fk_empresa_contratacoes_empresa\" on \"empresa_contratacoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_empresa_contratacoes_empresa",
+        "table": "empresa_contratacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_empresa_contratacoes_empresa\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_empresa_contratacoes_empresa",
+          "public",
+          "\"public\".\"empresa_contratacoes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_empresa_contratacoes_empresa\"",
+        "sql": "ALTER TABLE \"public\".\"empresa_contratacoes\"\nADD CONSTRAINT \"fk_empresa_contratacoes_empresa\"\nFOREIGN KEY (\"empresa_id\")\nREFERENCES \"public\".\"empresa\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_empresa_contratacoes_empresa\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_empresa_contratacoes_empresa",
+          "public",
+          "\"public\".\"empresa_contratacoes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.empresa_contratacoes.fk_empresa_contratacoes_tipo",
+    "label": "Add foreign key \"fk_empresa_contratacoes_tipo\" on \"empresa_contratacoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_empresa_contratacoes_tipo",
+        "table": "empresa_contratacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_empresa_contratacoes_tipo\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_empresa_contratacoes_tipo",
+          "public",
+          "\"public\".\"empresa_contratacoes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_empresa_contratacoes_tipo\"",
+        "sql": "ALTER TABLE \"public\".\"empresa_contratacoes\"\nADD CONSTRAINT \"fk_empresa_contratacoes_tipo\"\nFOREIGN KEY (\"tipo_contratacao_id\")\nREFERENCES \"public\".\"tipos_contratacao\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_empresa_contratacoes_tipo\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_empresa_contratacoes_tipo",
+          "public",
+          "\"public\".\"empresa_contratacoes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.empresa_obrigacoes.fk_empresa_obrigacoes_empresa",
+    "label": "Add foreign key \"fk_empresa_obrigacoes_empresa\" on \"empresa_obrigacoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_empresa_obrigacoes_empresa",
+        "table": "empresa_obrigacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_empresa_obrigacoes_empresa\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_empresa_obrigacoes_empresa",
+          "public",
+          "\"public\".\"empresa_obrigacoes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_empresa_obrigacoes_empresa\"",
+        "sql": "ALTER TABLE \"public\".\"empresa_obrigacoes\"\nADD CONSTRAINT \"fk_empresa_obrigacoes_empresa\"\nFOREIGN KEY (\"empresa_id\")\nREFERENCES \"public\".\"empresa\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_empresa_obrigacoes_empresa\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_empresa_obrigacoes_empresa",
+          "public",
+          "\"public\".\"empresa_obrigacoes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.empresa_obrigacoes.fk_empresa_obrigacoes_obrigacao",
+    "label": "Add foreign key \"fk_empresa_obrigacoes_obrigacao\" on \"empresa_obrigacoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_empresa_obrigacoes_obrigacao",
+        "table": "empresa_obrigacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_empresa_obrigacoes_obrigacao\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_empresa_obrigacoes_obrigacao",
+          "public",
+          "\"public\".\"empresa_obrigacoes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_empresa_obrigacoes_obrigacao\"",
+        "sql": "ALTER TABLE \"public\".\"empresa_obrigacoes\"\nADD CONSTRAINT \"fk_empresa_obrigacoes_obrigacao\"\nFOREIGN KEY (\"obrigacoes_id\")\nREFERENCES \"public\".\"obrigacoes\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_empresa_obrigacoes_obrigacao\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_empresa_obrigacoes_obrigacao",
+          "public",
+          "\"public\".\"empresa_obrigacoes\""
+        ]
+      }
+    ]
+  }
+]

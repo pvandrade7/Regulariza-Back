@@ -4,6 +4,14 @@
   "target": "postgres",
   "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
   "roots": {
+    "auth_sessoes": {
+      "model": "AuthSessao",
+      "namespace": "public"
+    },
+    "auth_tentativas": {
+      "model": "AuthTentativa",
+      "namespace": "public"
+    },
     "criterios": {
       "model": "Criterios",
       "namespace": "public"
@@ -41,6 +49,117 @@
     "namespaces": {
       "public": {
         "models": {
+          "AuthSessao": {
+            "fields": {
+              "expiraEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 6
+                  }
+                }
+              },
+              "tokenHash": {
+                "nullable": false,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 64
+                  }
+                }
+              },
+              "usuarioId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "usuario": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "usuarioId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Usuario",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "expiraEm": {
+                  "column": "expira_em"
+                },
+                "tokenHash": {
+                  "column": "token_hash"
+                },
+                "usuarioId": {
+                  "column": "usuario_id"
+                }
+              },
+              "namespaceId": "public",
+              "table": "auth_sessoes"
+            }
+          },
+          "AuthTentativa": {
+            "fields": {
+              "chave": {
+                "nullable": false,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 64
+                  }
+                }
+              },
+              "quantidade": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "reiniciaEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 6
+                  }
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "chave": {
+                  "column": "chave"
+                },
+                "quantidade": {
+                  "column": "quantidade"
+                },
+                "reiniciaEm": {
+                  "column": "reinicia_em"
+                }
+              },
+              "namespaceId": "public",
+              "table": "auth_tentativas"
+            }
+          },
           "Criterios": {
             "fields": {
               "campo": {
@@ -779,6 +898,13 @@
                     "length": 150
                   }
                 }
+              },
+              "senhaHash": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
               }
             },
             "relations": {
@@ -796,6 +922,21 @@
                   "model": "Empresa",
                   "namespace": "public"
                 }
+              },
+              "sessoes": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "usuarioId"
+                  ]
+                },
+                "to": {
+                  "model": "AuthSessao",
+                  "namespace": "public"
+                }
               }
             },
             "storage": {
@@ -808,6 +949,9 @@
                 },
                 "nome": {
                   "column": "nome"
+                },
+                "senhaHash": {
+                  "column": "senha_hash"
                 }
               },
               "namespaceId": "public",
@@ -822,7 +966,149 @@
     "namespaces": {
       "public": {
         "entries": {
+          "rls": {
+            "auth_sessoes": {
+              "kind": "rls",
+              "namespaceId": "public",
+              "tableName": "auth_sessoes"
+            },
+            "auth_tentativas": {
+              "kind": "rls",
+              "namespaceId": "public",
+              "tableName": "auth_tentativas"
+            },
+            "empresa": {
+              "kind": "rls",
+              "namespaceId": "public",
+              "tableName": "empresa"
+            },
+            "empresa_contratacoes": {
+              "kind": "rls",
+              "namespaceId": "public",
+              "tableName": "empresa_contratacoes"
+            },
+            "empresa_obrigacoes": {
+              "kind": "rls",
+              "namespaceId": "public",
+              "tableName": "empresa_obrigacoes"
+            },
+            "usuario": {
+              "kind": "rls",
+              "namespaceId": "public",
+              "tableName": "usuario"
+            }
+          },
           "table": {
+            "auth_sessoes": {
+              "columns": {
+                "expira_em": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 6
+                  }
+                },
+                "token_hash": {
+                  "codecId": "sql/varchar@1",
+                  "nativeType": "character varying",
+                  "nullable": false,
+                  "typeParams": {
+                    "length": 64
+                  }
+                },
+                "usuario_id": {
+                  "codecId": "pg/uuid@1",
+                  "nativeType": "uuid",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "name": "auth_sessoes_usuario_id_fkey",
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "usuario_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "auth_sessoes"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "usuario"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "expira_em"
+                  ],
+                  "name": "auth_sessoes_expiracao_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "usuario_id"
+                  ],
+                  "name": "auth_sessoes_usuario_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "token_hash"
+                ],
+                "name": "auth_sessoes_pkey"
+              },
+              "uniques": []
+            },
+            "auth_tentativas": {
+              "columns": {
+                "chave": {
+                  "codecId": "sql/varchar@1",
+                  "nativeType": "character varying",
+                  "nullable": false,
+                  "typeParams": {
+                    "length": 64
+                  }
+                },
+                "quantidade": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "reinicia_em": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 6
+                  }
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "reinicia_em"
+                  ],
+                  "name": "auth_tentativas_expiracao_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "chave"
+                ],
+                "name": "auth_tentativas_pkey"
+              },
+              "uniques": []
+            },
             "criterios": {
               "columns": {
                 "campo": {
@@ -1406,10 +1692,21 @@
                   "typeParams": {
                     "length": 150
                   }
+                },
+                "senha_hash": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
                 }
               },
               "foreignKeys": [],
-              "indexes": [],
+              "indexes": [
+                {
+                  "expression": "lower(btrim(email::text))",
+                  "name": "usuario_email_normalizado_key",
+                  "unique": true
+                }
+              ],
               "primaryKey": {
                 "columns": [
                   "id"
@@ -1431,7 +1728,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "e66d2344333c3fb331921bfb067a6b35f6e7f25c93f99a5abed0f24581a5f94a"
+    "storageHash": "6f44d0972f8b69dd4d368ca21b65baac06856357adee0fd03c76ee079326bbff"
   },
   "capabilities": {
     "postgres": {

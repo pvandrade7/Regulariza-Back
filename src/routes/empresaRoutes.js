@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import {
-    criarEmpresa
+    criarEmpresa, consultarEmpresa, atualizarEmpresa, listarEmpresas
 } from "../controllers/empresaController.js";
 
 import {
@@ -16,10 +16,16 @@ import {
     sincronizarObrigacoesController
 } from "../controllers/sincronizacaoController.js";
 
+import { requireEmpresaOwner } from '../middlewares/empresaOwner.js';
 const router = Router();
+router.get('/', listarEmpresas);
 
 // Cadastro de empresa
 router.post("/", criarEmpresa);
+// Protege também subrotas futuras, como documentos.
+router.use("/:id", requireEmpresaOwner);
+router.get("/:id", consultarEmpresa);
+router.patch("/:id", atualizarEmpresa);
 
 // Listagem e filtros de obrigações
 router.get("/:id/obrigacoes", listarObrigacoesAplicaveis);

@@ -153,7 +153,7 @@ export function validarEmpresa(body, parcial = false) {
     if (dados.estado) {
         dados.estado = dados.estado.toUpperCase();
 
-        if (!/^[A-Z]{2}$/.test(dados.estado)) {
+        if (!"AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO".split(" ").includes(dados.estado)) {
             erros.push("Estado deve conter uma UF válida.");
         }
     }
@@ -186,8 +186,8 @@ export function validarEmpresa(body, parcial = false) {
 
     if (body.numeroFuncionarios !== undefined) {
         if (
-            !Number.isInteger(body.numeroFuncionarios) ||
-            body.numeroFuncionarios < 0
+            !Number.isSafeInteger(body.numeroFuncionarios) ||
+            body.numeroFuncionarios < 0 || body.numeroFuncionarios > 2147483647
         ) {
             erros.push("numeroFuncionarios deve ser um inteiro não negativo.");
         } else {
@@ -203,5 +203,8 @@ export function validarEmpresa(body, parcial = false) {
         }
     }
 
+    if (!parcial && Boolean(dados.cpf) === Boolean(dados.cnpj)) {
+        erros.push("Informe somente CPF (Pessoa Física) ou CNPJ (Pessoa Jurídica).");
+    }
     return { erros, dados };
 }

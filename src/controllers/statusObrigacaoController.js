@@ -62,7 +62,7 @@ export async function atualizarStatusObrigacao(req, res) {
         });
 
     } catch (error) {
-        console.error("Erro ao atualizar status:", error);
+        console.error("Erro ao atualizar status:", error.code || error.name);
 
         return res.status(500).json({
             mensagem: "Erro interno ao atualizar o status da obrigação."

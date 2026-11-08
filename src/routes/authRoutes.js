@@ -1,0 +1,11 @@
+import { Router } from 'express';
+import { register, login, logout, me } from '../controllers/authController.js';
+import { requireAuth, requireCsrf } from '../middlewares/auth.js';
+import { authRateLimit } from '../middlewares/authRateLimit.js';
+const router = Router();
+router.use((_req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
+router.post('/register', authRateLimit('register', 10), register);
+router.post('/login', authRateLimit('login'), login);
+router.get('/me', requireAuth, me);
+router.post('/logout', requireAuth, requireCsrf, logout);
+export default router;
