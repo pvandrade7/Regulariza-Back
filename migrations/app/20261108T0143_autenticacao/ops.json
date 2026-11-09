@@ -1,0 +1,554 @@
+[
+  {
+    "id": "table.auth_sessoes",
+    "label": "Create table \"auth_sessoes\"",
+    "summary": "Creates table \"auth_sessoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "auth_sessoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"auth_sessoes\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auth_sessoes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"auth_sessoes\"",
+        "sql": "CREATE TABLE \"public\".\"auth_sessoes\" (\n  \"expira_em\" timestamptz(6) NOT NULL,\n  \"token_hash\" character varying(64) NOT NULL,\n  \"usuario_id\" uuid NOT NULL,\n  CONSTRAINT \"auth_sessoes_pkey\" PRIMARY KEY (\"token_hash\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"auth_sessoes\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auth_sessoes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.auth_tentativas",
+    "label": "Create table \"auth_tentativas\"",
+    "summary": "Creates table \"auth_tentativas\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "auth_tentativas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"auth_tentativas\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auth_tentativas\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"auth_tentativas\"",
+        "sql": "CREATE TABLE \"public\".\"auth_tentativas\" (\n  \"chave\" character varying(64) NOT NULL,\n  \"quantidade\" int4 NOT NULL,\n  \"reinicia_em\" timestamptz(6) NOT NULL,\n  CONSTRAINT \"auth_tentativas_pkey\" PRIMARY KEY (\"chave\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"auth_tentativas\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auth_tentativas\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.usuario.senha_hash",
+    "label": "Add column \"senha_hash\" to \"usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "senha_hash",
+        "table": "usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"senha_hash\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "usuario",
+          "senha_hash"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"senha_hash\"",
+        "sql": "ALTER TABLE \"public\".\"usuario\" ADD COLUMN \"senha_hash\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"senha_hash\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "usuario",
+          "senha_hash"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.auth_sessoes.auth_sessoes_expiracao_idx",
+    "label": "Create index \"auth_sessoes_expiracao_idx\" on \"auth_sessoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "auth_sessoes_expiracao_idx",
+        "table": "auth_sessoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"auth_sessoes_expiracao_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auth_sessoes_expiracao_idx\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"auth_sessoes_expiracao_idx\"",
+        "sql": "CREATE INDEX \"auth_sessoes_expiracao_idx\" ON \"public\".\"auth_sessoes\" (\"expira_em\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"auth_sessoes_expiracao_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auth_sessoes_expiracao_idx\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.auth_sessoes.auth_sessoes_usuario_idx",
+    "label": "Create index \"auth_sessoes_usuario_idx\" on \"auth_sessoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "auth_sessoes_usuario_idx",
+        "table": "auth_sessoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"auth_sessoes_usuario_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auth_sessoes_usuario_idx\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"auth_sessoes_usuario_idx\"",
+        "sql": "CREATE INDEX \"auth_sessoes_usuario_idx\" ON \"public\".\"auth_sessoes\" (\"usuario_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"auth_sessoes_usuario_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auth_sessoes_usuario_idx\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.auth_tentativas.auth_tentativas_expiracao_idx",
+    "label": "Create index \"auth_tentativas_expiracao_idx\" on \"auth_tentativas\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "auth_tentativas_expiracao_idx",
+        "table": "auth_tentativas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"auth_tentativas_expiracao_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auth_tentativas_expiracao_idx\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"auth_tentativas_expiracao_idx\"",
+        "sql": "CREATE INDEX \"auth_tentativas_expiracao_idx\" ON \"public\".\"auth_tentativas\" (\"reinicia_em\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"auth_tentativas_expiracao_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auth_tentativas_expiracao_idx\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.usuario.usuario_email_normalizado_key",
+    "label": "Create index \"usuario_email_normalizado_key\" on \"usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "usuario_email_normalizado_key",
+        "table": "usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"usuario_email_normalizado_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"usuario_email_normalizado_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"usuario_email_normalizado_key\"",
+        "sql": "CREATE UNIQUE INDEX \"usuario_email_normalizado_key\" ON \"public\".\"usuario\" (lower(btrim(email::text)))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"usuario_email_normalizado_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"usuario_email_normalizado_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.auth_sessoes.auth_sessoes_usuario_id_fkey",
+    "label": "Add foreign key \"auth_sessoes_usuario_id_fkey\" on \"auth_sessoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "auth_sessoes_usuario_id_fkey",
+        "table": "auth_sessoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"auth_sessoes_usuario_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "auth_sessoes_usuario_id_fkey",
+          "public",
+          "\"public\".\"auth_sessoes\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"auth_sessoes_usuario_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"auth_sessoes\"\nADD CONSTRAINT \"auth_sessoes_usuario_id_fkey\"\nFOREIGN KEY (\"usuario_id\")\nREFERENCES \"public\".\"usuario\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"auth_sessoes_usuario_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "auth_sessoes_usuario_id_fkey",
+          "public",
+          "\"public\".\"auth_sessoes\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rowLevelSecurity.public.auth_sessoes",
+    "label": "Enable row-level security on \"auth_sessoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rowLevelSecurity",
+        "name": "auth_sessoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "check RLS is not already enabled on \"auth_sessoes\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND NOT (\"c\".\"relrowsecurity\"))) AS \"result\"",
+        "params": [
+          "public",
+          "auth_sessoes"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "enable row-level security on \"auth_sessoes\"",
+        "sql": "ALTER TABLE \"public\".\"auth_sessoes\" ENABLE ROW LEVEL SECURITY"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify row-level security is enabled on \"auth_sessoes\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"c\".\"relrowsecurity\")) AS \"result\"",
+        "params": [
+          "public",
+          "auth_sessoes"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rowLevelSecurity.public.auth_tentativas",
+    "label": "Enable row-level security on \"auth_tentativas\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rowLevelSecurity",
+        "name": "auth_tentativas"
+      }
+    },
+    "precheck": [
+      {
+        "description": "check RLS is not already enabled on \"auth_tentativas\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND NOT (\"c\".\"relrowsecurity\"))) AS \"result\"",
+        "params": [
+          "public",
+          "auth_tentativas"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "enable row-level security on \"auth_tentativas\"",
+        "sql": "ALTER TABLE \"public\".\"auth_tentativas\" ENABLE ROW LEVEL SECURITY"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify row-level security is enabled on \"auth_tentativas\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"c\".\"relrowsecurity\")) AS \"result\"",
+        "params": [
+          "public",
+          "auth_tentativas"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rowLevelSecurity.public.empresa",
+    "label": "Enable row-level security on \"empresa\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rowLevelSecurity",
+        "name": "empresa"
+      }
+    },
+    "precheck": [
+      {
+        "description": "check RLS is not already enabled on \"empresa\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND NOT (\"c\".\"relrowsecurity\"))) AS \"result\"",
+        "params": [
+          "public",
+          "empresa"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "enable row-level security on \"empresa\"",
+        "sql": "ALTER TABLE \"public\".\"empresa\" ENABLE ROW LEVEL SECURITY"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify row-level security is enabled on \"empresa\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"c\".\"relrowsecurity\")) AS \"result\"",
+        "params": [
+          "public",
+          "empresa"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rowLevelSecurity.public.empresa_contratacoes",
+    "label": "Enable row-level security on \"empresa_contratacoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rowLevelSecurity",
+        "name": "empresa_contratacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "check RLS is not already enabled on \"empresa_contratacoes\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND NOT (\"c\".\"relrowsecurity\"))) AS \"result\"",
+        "params": [
+          "public",
+          "empresa_contratacoes"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "enable row-level security on \"empresa_contratacoes\"",
+        "sql": "ALTER TABLE \"public\".\"empresa_contratacoes\" ENABLE ROW LEVEL SECURITY"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify row-level security is enabled on \"empresa_contratacoes\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"c\".\"relrowsecurity\")) AS \"result\"",
+        "params": [
+          "public",
+          "empresa_contratacoes"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rowLevelSecurity.public.empresa_obrigacoes",
+    "label": "Enable row-level security on \"empresa_obrigacoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rowLevelSecurity",
+        "name": "empresa_obrigacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "check RLS is not already enabled on \"empresa_obrigacoes\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND NOT (\"c\".\"relrowsecurity\"))) AS \"result\"",
+        "params": [
+          "public",
+          "empresa_obrigacoes"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "enable row-level security on \"empresa_obrigacoes\"",
+        "sql": "ALTER TABLE \"public\".\"empresa_obrigacoes\" ENABLE ROW LEVEL SECURITY"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify row-level security is enabled on \"empresa_obrigacoes\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"c\".\"relrowsecurity\")) AS \"result\"",
+        "params": [
+          "public",
+          "empresa_obrigacoes"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rowLevelSecurity.public.usuario",
+    "label": "Enable row-level security on \"usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rowLevelSecurity",
+        "name": "usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "check RLS is not already enabled on \"usuario\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND NOT (\"c\".\"relrowsecurity\"))) AS \"result\"",
+        "params": [
+          "public",
+          "usuario"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "enable row-level security on \"usuario\"",
+        "sql": "ALTER TABLE \"public\".\"usuario\" ENABLE ROW LEVEL SECURITY"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify row-level security is enabled on \"usuario\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"c\".\"relrowsecurity\")) AS \"result\"",
+        "params": [
+          "public",
+          "usuario"
+        ]
+      }
+    ]
+  }
+]
