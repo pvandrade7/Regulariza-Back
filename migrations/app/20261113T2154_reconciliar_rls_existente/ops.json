@@ -1,0 +1,213 @@
+[
+  {
+    "id": "rowLevelSecurity.public.criterios",
+    "label": "Enable row-level security on \"criterios\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rowLevelSecurity",
+        "name": "criterios"
+      }
+    },
+    "precheck": [
+      {
+        "description": "check RLS is not already enabled on \"criterios\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND NOT (\"c\".\"relrowsecurity\"))) AS \"result\"",
+        "params": [
+          "public",
+          "criterios"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "enable row-level security on \"criterios\"",
+        "sql": "ALTER TABLE \"public\".\"criterios\" ENABLE ROW LEVEL SECURITY"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify row-level security is enabled on \"criterios\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"c\".\"relrowsecurity\")) AS \"result\"",
+        "params": [
+          "public",
+          "criterios"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.criterios.ALL",
+    "label": "Create RLS policy \"ALL\" on \"criterios\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "ALL",
+        "table": "criterios"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"ALL\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "criterios",
+          "ALL"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"ALL\"",
+        "sql": "CREATE POLICY \"ALL\" ON \"public\".\"criterios\" AS PERMISSIVE FOR ALL TO public USING (true) WITH CHECK (true)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"ALL\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "criterios",
+          "ALL"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.empresa.ALL",
+    "label": "Create RLS policy \"ALL\" on \"empresa\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "ALL",
+        "table": "empresa"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"ALL\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "empresa",
+          "ALL"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"ALL\"",
+        "sql": "CREATE POLICY \"ALL\" ON \"public\".\"empresa\" AS PERMISSIVE FOR ALL TO public USING (true) WITH CHECK (true)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"ALL\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "empresa",
+          "ALL"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.empresa_contratacoes.ALL",
+    "label": "Create RLS policy \"ALL\" on \"empresa_contratacoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "ALL",
+        "table": "empresa_contratacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"ALL\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "empresa_contratacoes",
+          "ALL"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"ALL\"",
+        "sql": "CREATE POLICY \"ALL\" ON \"public\".\"empresa_contratacoes\" AS PERMISSIVE FOR ALL TO public USING (true) WITH CHECK (true)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"ALL\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "empresa_contratacoes",
+          "ALL"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rlsPolicy.public.empresa_obrigacoes.ALL",
+    "label": "Create RLS policy \"ALL\" on \"empresa_obrigacoes\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rlsPolicy",
+        "name": "ALL",
+        "table": "empresa_obrigacoes"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure RLS policy \"ALL\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "empresa_obrigacoes",
+          "ALL"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create RLS policy \"ALL\"",
+        "sql": "CREATE POLICY \"ALL\" ON \"public\".\"empresa_obrigacoes\" AS PERMISSIVE FOR ALL TO public USING (true) WITH CHECK (true)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify RLS policy \"ALL\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_policies\" WHERE (\"schemaname\" = $1 AND \"tablename\" = $2 AND \"policyname\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "empresa_obrigacoes",
+          "ALL"
+        ]
+      }
+    ]
+  }
+]

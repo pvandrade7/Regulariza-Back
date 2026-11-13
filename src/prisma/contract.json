@@ -172,6 +172,13 @@
                   }
                 }
               },
+              "grupo": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
               "id": {
                 "nullable": false,
                 "type": {
@@ -230,6 +237,9 @@
                 "campo": {
                   "column": "campo"
                 },
+                "grupo": {
+                  "column": "grupo"
+                },
                 "id": {
                   "column": "id"
                 },
@@ -256,6 +266,16 @@
                   "kind": "scalar",
                   "typeParams": {
                     "length": 150
+                  }
+                }
+              },
+              "cnaePrincipal": {
+                "nullable": true,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 7
                   }
                 }
               },
@@ -347,6 +367,16 @@
                   "kind": "scalar"
                 }
               },
+              "regimeTributario": {
+                "nullable": true,
+                "type": {
+                  "codecId": "sql/varchar@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 50
+                  }
+                }
+              },
               "usuarioId": {
                 "nullable": false,
                 "type": {
@@ -424,6 +454,9 @@
                 "atividade": {
                   "column": "atividade"
                 },
+                "cnaePrincipal": {
+                  "column": "cnae_principal"
+                },
                 "cnpj": {
                   "column": "cnpj"
                 },
@@ -453,6 +486,9 @@
                 },
                 "regimeJuridicoId": {
                   "column": "regime_juridico_id"
+                },
+                "regimeTributario": {
+                  "column": "regime_tributario"
                 },
                 "usuarioId": {
                   "column": "usuario_id"
@@ -966,6 +1002,60 @@
     "namespaces": {
       "public": {
         "entries": {
+          "policy": {
+            "ALL": {
+              "kind": "policy",
+              "name": "ALL",
+              "namespaceId": "public",
+              "operation": "all",
+              "permissive": true,
+              "roles": [
+                "public"
+              ],
+              "tableName": "criterios",
+              "using": "true",
+              "withCheck": "true"
+            },
+            "ALL_2": {
+              "kind": "policy",
+              "name": "ALL",
+              "namespaceId": "public",
+              "operation": "all",
+              "permissive": true,
+              "roles": [
+                "public"
+              ],
+              "tableName": "empresa",
+              "using": "true",
+              "withCheck": "true"
+            },
+            "ALL_3": {
+              "kind": "policy",
+              "name": "ALL",
+              "namespaceId": "public",
+              "operation": "all",
+              "permissive": true,
+              "roles": [
+                "public"
+              ],
+              "tableName": "empresa_contratacoes",
+              "using": "true",
+              "withCheck": "true"
+            },
+            "ALL_4": {
+              "kind": "policy",
+              "name": "ALL",
+              "namespaceId": "public",
+              "operation": "all",
+              "permissive": true,
+              "roles": [
+                "public"
+              ],
+              "tableName": "empresa_obrigacoes",
+              "using": "true",
+              "withCheck": "true"
+            }
+          },
           "rls": {
             "auth_sessoes": {
               "kind": "rls",
@@ -976,6 +1066,11 @@
               "kind": "rls",
               "namespaceId": "public",
               "tableName": "auth_tentativas"
+            },
+            "criterios": {
+              "kind": "rls",
+              "namespaceId": "public",
+              "tableName": "criterios"
             },
             "empresa": {
               "kind": "rls",
@@ -1119,6 +1214,15 @@
                     "length": 100
                   }
                 },
+                "grupo": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 1
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
                 "id": {
                   "codecId": "pg/int4@1",
                   "default": {
@@ -1193,6 +1297,14 @@
                   "nullable": false,
                   "typeParams": {
                     "length": 150
+                  }
+                },
+                "cnae_principal": {
+                  "codecId": "sql/varchar@1",
+                  "nativeType": "character varying",
+                  "nullable": true,
+                  "typeParams": {
+                    "length": 7
                   }
                 },
                 "cnpj": {
@@ -1274,6 +1386,14 @@
                   "codecId": "pg/int4@1",
                   "nativeType": "int4",
                   "nullable": false
+                },
+                "regime_tributario": {
+                  "codecId": "sql/varchar@1",
+                  "nativeType": "character varying",
+                  "nullable": true,
+                  "typeParams": {
+                    "length": 50
+                  }
                 },
                 "usuario_id": {
                   "codecId": "pg/uuid@1",
@@ -1728,7 +1848,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "6f44d0972f8b69dd4d368ca21b65baac06856357adee0fd03c76ee079326bbff"
+    "storageHash": "c413bb83e0befc93739fc9c041ba00d409690b7bc663db30eb527063a8b22daf"
   },
   "capabilities": {
     "postgres": {

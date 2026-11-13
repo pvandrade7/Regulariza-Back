@@ -1,0 +1,86 @@
+[
+  {
+    "id": "column.public.empresa.cnae_principal",
+    "label": "Add column \"cnae_principal\" to \"empresa\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "cnae_principal",
+        "table": "empresa"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"cnae_principal\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "empresa",
+          "cnae_principal"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"cnae_principal\"",
+        "sql": "ALTER TABLE \"public\".\"empresa\" ADD COLUMN \"cnae_principal\" character varying(7)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"cnae_principal\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "empresa",
+          "cnae_principal"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.empresa.regime_tributario",
+    "label": "Add column \"regime_tributario\" to \"empresa\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "regime_tributario",
+        "table": "empresa"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"regime_tributario\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "empresa",
+          "regime_tributario"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"regime_tributario\"",
+        "sql": "ALTER TABLE \"public\".\"empresa\" ADD COLUMN \"regime_tributario\" character varying(50)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"regime_tributario\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "empresa",
+          "regime_tributario"
+        ]
+      }
+    ]
+  }
+]

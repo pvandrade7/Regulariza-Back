@@ -1,0 +1,44 @@
+[
+  {
+    "id": "column.public.criterios.grupo",
+    "label": "Add column \"grupo\" to \"criterios\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "grupo",
+        "table": "criterios"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"grupo\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "criterios",
+          "grupo"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"grupo\"",
+        "sql": "ALTER TABLE \"public\".\"criterios\" ADD COLUMN \"grupo\" int4 DEFAULT 1 NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"grupo\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "criterios",
+          "grupo"
+        ]
+      }
+    ]
+  }
+]

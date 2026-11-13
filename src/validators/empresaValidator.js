@@ -68,7 +68,9 @@ const camposPermitidos = [
     "municipio",
     "estado",
     "numeroFuncionarios",
-    "estabelecimentoFisico"
+    "estabelecimentoFisico",
+    "regimeTributario",
+    "cnaePrincipal",
 ];
 
 export function validarEmpresa(body, parcial = false) {
@@ -147,6 +149,36 @@ export function validarEmpresa(body, parcial = false) {
             erros.push(`${campo} deve ser um texto válido de até ${tamanho} caracteres.`);
         } else {
             dados[campo] = body[campo].trim();
+        }
+    }
+
+    if (body.regimeTributario !== undefined) {
+        if (body.regimeTributario === null || body.regimeTributario === "") {
+            dados.regimeTributario = null;
+        } else if (
+            typeof body.regimeTributario !== "string" ||
+            !body.regimeTributario.trim() ||
+            body.regimeTributario.trim().length > 50
+        ) {
+            erros.push("regimeTributario deve ser um texto válido de até 50 caracteres.");
+        } else {
+            dados.regimeTributario = body.regimeTributario.trim();
+        }
+    }
+
+    if (body.cnaePrincipal !== undefined) {
+        if (body.cnaePrincipal === null || body.cnaePrincipal === "") {
+            dados.cnaePrincipal = null;
+        } else if (typeof body.cnaePrincipal !== "string") {
+            erros.push("cnaePrincipal deve ser um texto.");
+        } else {
+            const cnae = body.cnaePrincipal.replace(/[./-]/g, "");
+
+            if (!/^\d{7}$/.test(cnae)) {
+                erros.push("cnaePrincipal deve conter exatamente 7 dígitos.");
+            } else {
+                dados.cnaePrincipal = cnae;
+            }
         }
     }
 

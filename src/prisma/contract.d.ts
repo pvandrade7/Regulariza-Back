@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'6f44d0972f8b69dd4d368ca21b65baac06856357adee0fd03c76ee079326bbff'>;
+  StorageHashBase<'c413bb83e0befc93739fc9c041ba00d409690b7bc663db30eb527063a8b22daf'>;
 export type ExecutionHash = ExecutionHashBase<string>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
@@ -261,6 +261,7 @@ export type FieldOutputTypes = {
     };
     readonly Criterios: {
       readonly campo: Varchar<100>;
+      readonly grupo: CodecTypes['pg/int4@1']['output'];
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly obrigacaoId: CodecTypes['pg/int4@1']['output'];
       readonly operador: Varchar<20>;
@@ -268,6 +269,7 @@ export type FieldOutputTypes = {
     };
     readonly Empresa: {
       readonly atividade: Varchar<150>;
+      readonly cnaePrincipal: Varchar<7> | null;
       readonly cnpj: Varchar<14> | null;
       readonly cpf: Varchar<11> | null;
       readonly estabelecimentoFisico: CodecTypes['pg/bool@1']['output'];
@@ -278,6 +280,7 @@ export type FieldOutputTypes = {
       readonly numeroFuncionarios: CodecTypes['pg/int4@1']['output'];
       readonly porte: Varchar<50> | null;
       readonly regimeJuridicoId: CodecTypes['pg/int4@1']['output'];
+      readonly regimeTributario: Varchar<50> | null;
       readonly usuarioId: CodecTypes['pg/uuid@1']['output'];
     };
     readonly EmpresaContratacoes: {
@@ -332,6 +335,7 @@ export type FieldInputTypes = {
     };
     readonly Criterios: {
       readonly campo: CodecTypes['sql/varchar@1']['input'];
+      readonly grupo: CodecTypes['pg/int4@1']['input'];
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly obrigacaoId: CodecTypes['pg/int4@1']['input'];
       readonly operador: CodecTypes['sql/varchar@1']['input'];
@@ -339,6 +343,7 @@ export type FieldInputTypes = {
     };
     readonly Empresa: {
       readonly atividade: CodecTypes['sql/varchar@1']['input'];
+      readonly cnaePrincipal: CodecTypes['sql/varchar@1']['input'] | null;
       readonly cnpj: CodecTypes['sql/varchar@1']['input'] | null;
       readonly cpf: CodecTypes['sql/varchar@1']['input'] | null;
       readonly estabelecimentoFisico: CodecTypes['pg/bool@1']['input'];
@@ -349,6 +354,7 @@ export type FieldInputTypes = {
       readonly numeroFuncionarios: CodecTypes['pg/int4@1']['input'];
       readonly porte: CodecTypes['sql/varchar@1']['input'] | null;
       readonly regimeJuridicoId: CodecTypes['pg/int4@1']['input'];
+      readonly regimeTributario: CodecTypes['sql/varchar@1']['input'] | null;
       readonly usuarioId: CodecTypes['pg/uuid@1']['input'];
     };
     readonly EmpresaContratacoes: {
@@ -403,6 +409,7 @@ export type StorageColumnTypes = {
     };
     readonly criterios: {
       readonly campo: Varchar<100>;
+      readonly grupo: CodecTypes['pg/int4@1']['output'];
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly obrigacao_id: CodecTypes['pg/int4@1']['output'];
       readonly operador: Varchar<20>;
@@ -410,6 +417,7 @@ export type StorageColumnTypes = {
     };
     readonly empresa: {
       readonly atividade: Varchar<150>;
+      readonly cnae_principal: Varchar<7> | null;
       readonly cnpj: Varchar<14> | null;
       readonly cpf: Varchar<11> | null;
       readonly estabelecimento_fisico: CodecTypes['pg/bool@1']['output'];
@@ -420,6 +428,7 @@ export type StorageColumnTypes = {
       readonly numero_funcionarios: CodecTypes['pg/int4@1']['output'];
       readonly porte: Varchar<50> | null;
       readonly regime_juridico_id: CodecTypes['pg/int4@1']['output'];
+      readonly regime_tributario: Varchar<50> | null;
       readonly usuario_id: CodecTypes['pg/uuid@1']['output'];
     };
     readonly empresa_contratacoes: {
@@ -474,6 +483,7 @@ export type StorageColumnInputTypes = {
     };
     readonly criterios: {
       readonly campo: CodecTypes['sql/varchar@1']['input'];
+      readonly grupo: CodecTypes['pg/int4@1']['input'];
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly obrigacao_id: CodecTypes['pg/int4@1']['input'];
       readonly operador: CodecTypes['sql/varchar@1']['input'];
@@ -481,6 +491,7 @@ export type StorageColumnInputTypes = {
     };
     readonly empresa: {
       readonly atividade: CodecTypes['sql/varchar@1']['input'];
+      readonly cnae_principal: CodecTypes['sql/varchar@1']['input'] | null;
       readonly cnpj: CodecTypes['sql/varchar@1']['input'] | null;
       readonly cpf: CodecTypes['sql/varchar@1']['input'] | null;
       readonly estabelecimento_fisico: CodecTypes['pg/bool@1']['input'];
@@ -491,6 +502,7 @@ export type StorageColumnInputTypes = {
       readonly numero_funcionarios: CodecTypes['pg/int4@1']['input'];
       readonly porte: CodecTypes['sql/varchar@1']['input'] | null;
       readonly regime_juridico_id: CodecTypes['pg/int4@1']['input'];
+      readonly regime_tributario: CodecTypes['sql/varchar@1']['input'] | null;
       readonly usuario_id: CodecTypes['pg/uuid@1']['input'];
     };
     readonly empresa_contratacoes: {
@@ -548,6 +560,7 @@ export namespace Models {
   };
   export type public_Criterios = {
     campo: Varchar<100>;
+    grupo: CodecTypes['pg/int4@1']['output'];
     id: CodecTypes['pg/int4@1']['output'];
     obrigacaoId: CodecTypes['pg/int4@1']['output'];
     operador: Varchar<20>;
@@ -557,6 +570,7 @@ export namespace Models {
   };
   export type public_Empresa = {
     atividade: Varchar<150>;
+    cnaePrincipal: Varchar<7> | null;
     cnpj: Varchar<14> | null;
     cpf: Varchar<11> | null;
     estabelecimentoFisico: CodecTypes['pg/bool@1']['output'];
@@ -567,6 +581,7 @@ export namespace Models {
     numeroFuncionarios: CodecTypes['pg/int4@1']['output'];
     porte: Varchar<50> | null;
     regimeJuridicoId: CodecTypes['pg/int4@1']['output'];
+    regimeTributario: Varchar<50> | null;
     usuarioId: CodecTypes['pg/uuid@1']['output'];
     empresaContratacoes: public_EmpresaContratacoes[];
     empresaObrigacoes: public_EmpresaObrigacoes[];
@@ -757,6 +772,15 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly typeParams: { readonly length: 100 };
                 };
+                readonly grupo: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 1>;
+                  };
+                };
                 readonly id: {
                   readonly nativeType: 'int4';
                   readonly codecId: 'pg/int4@1';
@@ -810,6 +834,12 @@ type ContractBase = Omit<
                   readonly codecId: 'sql/varchar@1';
                   readonly nullable: false;
                   readonly typeParams: { readonly length: 150 };
+                };
+                readonly cnae_principal: {
+                  readonly nativeType: 'character varying';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly length: 7 };
                 };
                 readonly cnpj: {
                   readonly nativeType: 'character varying';
@@ -878,6 +908,12 @@ type ContractBase = Omit<
                   readonly nativeType: 'int4';
                   readonly codecId: 'pg/int4@1';
                   readonly nullable: false;
+                };
+                readonly regime_tributario: {
+                  readonly nativeType: 'character varying';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly length: 50 };
                 };
                 readonly usuario_id: {
                   readonly nativeType: 'uuid';
@@ -1359,6 +1395,10 @@ type ContractBase = Omit<
                   readonly typeParams: { readonly length: 100 };
                 };
               };
+              readonly grupo: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
               readonly id: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
@@ -1403,6 +1443,7 @@ type ContractBase = Omit<
               readonly namespaceId: 'public';
               readonly fields: {
                 readonly campo: { readonly column: 'campo' };
+                readonly grupo: { readonly column: 'grupo' };
                 readonly id: { readonly column: 'id' };
                 readonly obrigacaoId: { readonly column: 'obrigacao_id' };
                 readonly operador: { readonly column: 'operador' };
@@ -1418,6 +1459,14 @@ type ContractBase = Omit<
                   readonly kind: 'scalar';
                   readonly codecId: 'sql/varchar@1';
                   readonly typeParams: { readonly length: 150 };
+                };
+              };
+              readonly cnaePrincipal: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly typeParams: { readonly length: 7 };
                 };
               };
               readonly cnpj: {
@@ -1484,6 +1533,14 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
               };
+              readonly regimeTributario: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'sql/varchar@1';
+                  readonly typeParams: { readonly length: 50 };
+                };
+              };
               readonly usuarioId: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
@@ -1542,6 +1599,7 @@ type ContractBase = Omit<
               readonly namespaceId: 'public';
               readonly fields: {
                 readonly atividade: { readonly column: 'atividade' };
+                readonly cnaePrincipal: { readonly column: 'cnae_principal' };
                 readonly cnpj: { readonly column: 'cnpj' };
                 readonly cpf: { readonly column: 'cpf' };
                 readonly estabelecimentoFisico: { readonly column: 'estabelecimento_fisico' };
@@ -1552,6 +1610,7 @@ type ContractBase = Omit<
                 readonly numeroFuncionarios: { readonly column: 'numero_funcionarios' };
                 readonly porte: { readonly column: 'porte' };
                 readonly regimeJuridicoId: { readonly column: 'regime_juridico_id' };
+                readonly regimeTributario: { readonly column: 'regime_tributario' };
                 readonly usuarioId: { readonly column: 'usuario_id' };
               };
             };

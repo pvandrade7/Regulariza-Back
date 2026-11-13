@@ -15,7 +15,9 @@ function prepararPerfil(empresa) {
         estado: empresa.estado,
         municipio: empresa.municipio,
         porte: empresa.porte,
-        atividade: empresa.atividade
+        atividade: empresa.atividade,
+        cnae_principal: empresa.cnaePrincipal,
+        regime_tributario: empresa.regimeTributario
     };
 }
 
@@ -73,7 +75,8 @@ export async function listarObrigacoesAplicaveis(req, res) {
             criterios: obrigacao.criterios.map((criterio) => ({
                 campo: criterio.campo,
                 operador: criterio.operador,
-                valor: criterio.valor
+                valor: criterio.valor,
+                grupo: criterio.grupo
             }))
         }));
 
@@ -90,7 +93,7 @@ export async function listarObrigacoesAplicaveis(req, res) {
         );
 
         const aplicaveis = resultados
-            .filter((resultado) => vinculosPorObrigacao.has(resultado.id))
+            .filter((resultado) => resultado.aplicavel && vinculosPorObrigacao.has(resultado.id))
             .map((resultado) => {
                 const detalhes = detalhesPorId.get(resultado.id);
                 const vinculo = vinculosPorObrigacao.get(resultado.id);

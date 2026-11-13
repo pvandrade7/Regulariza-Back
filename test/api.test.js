@@ -194,3 +194,34 @@ test('assistente bloqueia requisições acima do limite', async () => {
     simularLimiteExcedido = false;
   }
 });
+test('listagem integra CNAE, regime, AND/OR, status e data sem manter aplicabilidade obsoleta', async () => {
+  const anterior = obrigacoes[0];
+  const perfilAnterior = empresa;
+  const vinculoAnterior = vinculo;
+  try {
+    empresa = {...empresa, cnaePrincipal:'6201501', regimeTributario:'Simples Nacional'};
+    obrigacoes[0] = {...anterior, criterios:[
+      {campo:'estado',operador:'=',valor:'SP',grupo:1},
+      {campo:'cnae_principal',operador:'=',valor:'6201501',grupo:2},
+      {campo:'regime_tributario',operador:'=',valor:'Simples Nacional',grupo:2}
+    ]};
+    vinculo = {...vinculo, status:'Em andamento', vencimento:'2026-12-13'};
+    const url = `/empresas/${empresaId}/obrigacoes`;
+    let resposta = await request(url);
+    assert.equal(resposta.status,200);
+    assert.equal(resposta.body.total,1);
+    assert.equal(resposta.body.obrigacoes[0].aplicavel,true);
+    assert.equal(resposta.body.obrigacoes[0].status,'Em andamento');
+    assert.equal(resposta.body.obrigacoes[0].vencimento,'2026-12-13');
+    vinculo = {...vinculo,vencimento:null};
+    assert.equal((await request(url)).body.obrigacoes[0].vencimento,null);
+    empresa = {...empresa, regimeTributario:'Lucro Presumido'};
+    assert.equal((await request(url)).body.total,0);
+    empresa = {...empresa,estado:'SP'};
+    assert.equal((await request(url)).body.total,1);
+  } finally {
+    obrigacoes[0] = anterior;
+    empresa = perfilAnterior;
+    vinculo = vinculoAnterior;
+  }
+});

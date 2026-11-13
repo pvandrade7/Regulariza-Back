@@ -2,7 +2,15 @@ import { db } from "../prisma/db.ts";
 import { pool } from "../database/pool.js";
 import { validarEmpresa, validarUuid } from "../validators/empresaValidator.js";
 
-const colunas = { usuarioId: "usuario_id", regimeJuridicoId: "regime_juridico_id", numeroFuncionarios: "numero_funcionarios", estabelecimentoFisico: "estabelecimento_fisico" };
+const colunas = {
+    usuarioId: "usuario_id",
+    regimeJuridicoId: "regime_juridico_id",
+    numeroFuncionarios: "numero_funcionarios",
+    estabelecimentoFisico: "estabelecimento_fisico",
+    regimeTributario: "regime_tributario",
+    cnaePrincipal: "cnae_principal"
+};
+
 async function validarRegime(dados, res) {
     const resultado = await pool.query("SELECT nome FROM regime_juridico WHERE id = $1", [dados.regimeJuridicoId]);
     const nome = resultado.rows[0]?.nome;

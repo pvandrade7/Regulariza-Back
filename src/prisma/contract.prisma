@@ -21,9 +21,11 @@ model Criterios {
   campo       VarChar(100)
   operador    VarChar(20)
   valor       VarChar(150)
+  grupo       Int          @default(1)
   obrigacao   Obrigacoes   @relation(fields: [obrigacaoId], references: [id], onDelete: Cascade, map: "fk_criterio_obrigacao", index: false)
 
   @@map("criterios")
+  @@rls
 }
 
 model RegimeJuridico {
@@ -56,6 +58,8 @@ model Empresa {
   cnpj                  VarChar(14)?          @unique(map: "empresa_cnpj_key")
   atividade             VarChar(150)
   porte                 VarChar(50)?
+  regimeTributario       VarChar(50)?           @map("regime_tributario")
+  cnaePrincipal          VarChar(7)?            @map("cnae_principal")
   municipio             VarChar(100)
   estado                VarChar(2)
   numeroFuncionarios    Int                   @default(0) @map("numero_funcionarios")
@@ -127,4 +131,36 @@ model AuthTentativa {
   @@index([reiniciaEm], map: "auth_tentativas_expiracao_idx")
   @@rls
   @@map("auth_tentativas")
+}
+
+policy_all ALL {
+  target = Criterios
+  roles = [public]
+  using = "true"
+  withCheck = "true"
+  @@map("ALL")
+}
+
+policy_all ALL_2 {
+  target = Empresa
+  roles = [public]
+  using = "true"
+  withCheck = "true"
+  @@map("ALL")
+}
+
+policy_all ALL_3 {
+  target = EmpresaContratacoes
+  roles = [public]
+  using = "true"
+  withCheck = "true"
+  @@map("ALL")
+}
+
+policy_all ALL_4 {
+  target = EmpresaObrigacoes
+  roles = [public]
+  using = "true"
+  withCheck = "true"
+  @@map("ALL")
 }

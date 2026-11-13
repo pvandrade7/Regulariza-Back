@@ -5,7 +5,9 @@ const CAMPOS_PERMITIDOS = {
     estado: "string",
     municipio: "string",
     porte: "string",
-    atividade: "string"
+    atividade: "string",
+    cnae_principal: "string",
+    regime_tributario: "string"
 };
 
 const OPERADORES = new Set(["=", "!=", ">", "<", ">=", "<="]);
@@ -112,22 +114,35 @@ export function avaliarObrigacao(empresa, obrigacao) {
             campo: criterio.campo,
             operador: criterio.operador,
             valorEsperado: criterio.valor,
+            grupo: criterio.grupo ?? 1,
             valorEmpresa: empresa[criterio.campo] ?? null,
             atendido
         };
     });
 
-    const aplicavel = criteriosAvaliados.every(
-        (criterio) => criterio.atendido
-    );
+    const grupos = new Map();
+
+criterios.forEach((criterio, index) => {
+    const grupo = criterio.grupo ?? 1;
+
+    if (!grupos.has(grupo)) {
+        grupos.set(grupo, []);
+    }
+
+    grupos.get(grupo).push(criteriosAvaliados[index].atendido);
+});
+
+const aplicavel = [...grupos.values()].some(
+    (resultados) => resultados.every(Boolean)
+);
 
     return {
         id: obrigacao.id,
         nome: obrigacao.nome,
         aplicavel,
         motivo: aplicavel
-            ? "Todos os critérios foram atendidos."
-            : "Um ou mais critérios não foram atendidos.",
+            ? "Todos os critérios de pelo menos um grupo foram atendidos."
+            : "Nenhum grupo teve todos os critérios atendidos.",
         criteriosAvaliados
     };
 }

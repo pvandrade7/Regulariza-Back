@@ -11,7 +11,9 @@ function prepararPerfil(empresa) {
         estado: empresa.estado,
         municipio: empresa.municipio,
         porte: empresa.porte,
-        atividade: empresa.atividade
+        atividade: empresa.atividade,
+        cnae_principal: empresa.cnae_principal,
+        regime_tributario: empresa.regime_tributario
     };
 }
 
@@ -42,7 +44,7 @@ export async function sincronizarObrigacoes(empresaId, dataBase, usuarioId) {
         `);
 
         const criteriosResult = await client.query(`
-            SELECT id, obrigacao_id, campo, operador, valor
+            SELECT id, obrigacao_id, campo, operador, valor, grupo
             FROM criterios
             ORDER BY id
         `);
