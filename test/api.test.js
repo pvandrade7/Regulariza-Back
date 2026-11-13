@@ -30,10 +30,11 @@ mock.module('../src/prisma/db.ts', { namedExports: { db: { orm: { public: {
   }) }
 } } } } });
 const queries = [];
+let simularLimiteExcedido = false;
 mock.module('../src/database/pool.js', { namedExports: { pool: {
   query: async (sql, params) => {
     queries.push({sql,params});
-    if (sql.startsWith('INSERT INTO auth_tentativas')) return { rows: [{quantidade:1, espera:900}] };
+    if (sql.startsWith('INSERT INTO auth_tentativas')) return { rows: [{quantidade: simularLimiteExcedido ? 11 : 1, espera:900}] };
     if (sql.startsWith('SELECT nome FROM regime_juridico')) return { rows: params[0] === 2 ? [{nome:'Pessoa Jurídica'}] : [{nome:'Pessoa Física'}] };
     if (sql.startsWith('INSERT INTO empresa')) {
       if (empresa) throw Object.assign(new Error('duplicate'), {code:'23505'});
@@ -47,6 +48,15 @@ mock.module('../src/database/pool.js', { namedExports: { pool: {
   },
   connect: async () => { throw new Error('Banco indisponível para teste de erro'); }
 } } });
+mock.module('../src/services/geminiService.js', {
+  namedExports: {
+    perguntarGemini: async (mensagem) => {
+      assert.equal(typeof mensagem, 'string');
+
+      return 'Resposta simulada do assistente Regulariza.';
+    }
+  }
+});
 const { app } = await import('../src/app.js');
 let server, base;
 before(async () => { server = app.listen(0, '127.0.0.1'); await new Promise((resolve, reject) => { server.once('listening', resolve); server.once('error', reject); }); base = `http://127.0.0.1:${server.address().port}`; });
@@ -119,4 +129,68 @@ test('motor, filtros e vencimento em fim de mês', () => {
   assert.equal(executarMotor({estado:'CE'},obrigacoes)[0].aplicavel,true);
   assert.ok(validarFiltros({vencimentoInicio:'2026-12-01',vencimentoFim:'2026-01-01'}).erros.length);
   assert.equal(filtrarObrigacoes([{status:'Concluída'}],{status:'concluida'}).length,1);
+});
+test('assistente recebe pergunta e retorna resposta', async () => {
+  const res = await request('/assistente/perguntar', 'POST', {
+    mensagem: 'O que é o DAS do MEI?'
+  });
+
+  assert.equal(res.status, 200);
+
+  assert.deepEqual(res.body, {
+    resposta: 'Resposta simulada do assistente Regulariza.'
+  });
+});
+test('assistente rejeita mensagens inválidas', async () => {
+  const mensagensInvalidas = [
+    {},
+    { mensagem: '' },
+    { mensagem: '   ' },
+    { mensagem: 123 },
+    { mensagem: null },
+    { mensagem: 'a'.repeat(1001) }
+  ];
+
+  for (const corpo of mensagensInvalidas) {
+    const res = await request('/assistente/perguntar', 'POST', corpo);
+
+    assert.equal(
+      res.status,
+      400,
+      `Esperado HTTP 400 para: ${JSON.stringify(corpo).slice(0, 100)}`
+    );
+
+    assert.equal(
+      res.body.mensagem,
+      'A pergunta deve conter entre 1 e 1000 caracteres.'
+    );
+  }
+});
+test('assistente bloqueia requisições acima do limite', async () => {
+  simularLimiteExcedido = true;
+
+  try {
+    const res = await fetch(base + '/assistente/perguntar', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Origin: 'http://localhost:5173'
+      },
+      body: JSON.stringify({
+        mensagem: 'O que é o DAS do MEI?'
+      })
+    });
+
+    assert.equal(res.status, 429);
+    assert.equal(res.headers.get('retry-after'), '900');
+
+    const body = await res.json();
+
+    assert.equal(
+      body.mensagem,
+      'Muitas tentativas. Tente novamente em alguns minutos.'
+    );
+  } finally {
+    simularLimiteExcedido = false;
+  }
 });

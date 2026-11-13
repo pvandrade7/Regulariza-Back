@@ -5,6 +5,7 @@ import { tmpdir, userInfo } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import net from 'node:net';
+import { perguntarAssistente } from '../src/controllers/assistenteController.js';
 const pasta = mkdtempSync(join(tmpdir(), 'regulariza-pg-test-'));
 function run(cmd, args) {
   const result = spawnSync(cmd,args,{encoding:'utf8'});
@@ -88,6 +89,19 @@ try {
   assert.notEqual(dbSession.token_hash,token);
   const refreshed={cookie:a.cookie};assert.equal((await request(refreshed,'/auth/me')).data.usuario.id,userA.id);assert.ok(refreshed.csrf);
   await request(b,'/auth/login','POST',{email:userB.email,senha});
+  const perguntaAssistente = {mensagem: 'o que é o DAS do MEI'}
+  await request(anon, '/assistente/perguntar', 'POST', perguntaAssistente, 401);
+  await request({cookie: a.cookie}, '/assistente/perguntar', 'POST', perguntaAssistente, 403);
+  await request(a, '/assistente/perguntar', 'POST', perguntaAssistente, 403, {'X-CSRF-Token': b.csrf});
+  console.log('PASS assistente protegido por autenticação e CSRF reais.');
+  const { createHash } = await import('node:crypto');
+  const chaveAssistente = createHash('sha256').update('assistente-gemini:127.0.0.1').digest('hex');
+  await pool.query("INSERT INTO auth_tentativas (chave, quantidade, reinicia_em) VALUES ($1, 10, now() + interval '15 minutes') ON CONFLICT (chave) DO UPDATE SET quantidade = 10, reinicia_em = now() + interval '15 minutes'", [chaveAssistente]);
+  const bloqueioAssistente = await request(a, '/assistente/perguntar', 'POST', { mensagem: 'O que é o DAS do MEI?' }, 429);
+  assert.ok(Number(bloqueioAssistente.res.headers.get('retry-after')) > 0);
+  assert.equal(bloqueioAssistente.data.mensagem, 'Muitas tentativas. Tente novamente em alguns minutos.');
+  console.log('PASS rate limit real do assistente: HTTP 429 e Retry-After.');
+
   await request(anon,'/auth/me','GET',undefined,401);
   await request(anon,'/empresas','GET',undefined,401);
   await request(anon,`/usuarios/${userA.id}/empresas`,'GET',undefined,401);

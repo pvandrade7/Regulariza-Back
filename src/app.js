@@ -9,6 +9,7 @@ import { requireAuth, requireCsrf } from './middlewares/auth.js';
 import { register } from './controllers/authController.js';
 import { authRateLimit } from './middlewares/authRateLimit.js';
 import { allowedOrigins } from './config/auth.js';
+import assistenteRoutes from "./routes/assistenteRoutes.js";
 
 export const app = express();
 app.disable('x-powered-by');
@@ -44,6 +45,8 @@ app.get('/usuarios/:id/empresas', requireAuth, async (req, res) => {
     res.json(await db.orm.public.Empresa.where({ usuarioId: req.usuario.id }).all());
 });
 app.use('/empresas', requireAuth, requireCsrf, empresaRoutes);
+app.use('/assistente', requireAuth, requireCsrf, authRateLimit("assistente-gemini", 10), assistenteRoutes);
+
 app.use((_req, res) => res.status(404).json({ mensagem: "Rota não encontrada." }));
 app.use((error, _req, res, _next) => {
     if (error.type === "entity.parse.failed") return res.status(400).json({ mensagem: "JSON inválido." });
