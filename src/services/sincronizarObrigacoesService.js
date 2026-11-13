@@ -75,14 +75,18 @@ export async function sincronizarObrigacoes(empresaId, dataBase, usuarioId) {
 
         let criadas = 0;
         let vencimentosPreenchidos = 0;
+        const calculos = [];
 
         for (const resultado of aplicaveis) {
             const obrigacao = obrigacoesPorId.get(resultado.id);
 
             const calculo = obterVencimentoObrigacao(
                 obrigacao,
-                dataBase
+                dataBase,
+                empresa
             );
+
+            calculos.push({ obrigacaoId: obrigacao.id, ...calculo });
 
             const vencimento = calculo.calculado
                 ? calculo.vencimento
@@ -132,6 +136,8 @@ export async function sincronizarObrigacoes(empresaId, dataBase, usuarioId) {
             totalAplicaveis: aplicaveis.length,
             vinculosCriados: criadas,
             vencimentosPreenchidos,
+            calculos,
+            aviso: "Vencimentos já preenchidos foram preservados. Um vínculo por obrigação: não é um histórico de competências.",
             mensagem: criteriosResult.rows.length === 0
                 ? "Sincronização concluída, mas não há critérios regulatórios cadastrados; nenhuma aplicabilidade pôde ser determinada."
                 : aplicaveis.length === 0

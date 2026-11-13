@@ -225,3 +225,13 @@ test('listagem integra CNAE, regime, AND/OR, status e data sem manter aplicabili
     vinculo = vinculoAnterior;
   }
 });
+
+test('sincronização valida competência e ano-calendário, sem aceitar período fiscal malformado',async()=>{
+ const url=`/empresas/${empresaId}/obrigacoes/sincronizar`;
+ for(const body of [{competencia:'2026-13'},{competencia:['2026-10']},{anoCalendario:'2025'},{competencia:'2026-10',situacaoEspecial:'false'},{}]) {
+  assert.equal((await request(url,'POST',body)).status,400);
+ }
+ // Dependência de banco deliberadamente indisponível nesta suíte: 500 confirma
+ // que um contexto válido passou da validação sem inventar data-base.
+ assert.equal((await request(url,'POST',{competencia:'2026-10',anoCalendario:2025})).status,500);
+});

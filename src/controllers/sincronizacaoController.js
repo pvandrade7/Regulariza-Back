@@ -1,3 +1,4 @@
+import { validarContextoFiscal } from "../services/vencimentoService.js";
 
 import { validarUuid } from "../validators/empresaValidator.js";
 import { sincronizarObrigacoes } from "../services/sincronizarObrigacoesService.js";
@@ -17,7 +18,8 @@ function validarData(data) {
 export async function sincronizarObrigacoesController(req, res) {
     try {
         const { id } = req.params;
-        const { dataBase } = req.body ?? {};
+        const { dataBase, competencia, anoCalendario, situacaoEspecial } = req.body ?? {};
+        const contexto = { competencia, anoCalendario, situacaoEspecial };
 
 
         if (!validarUuid(id)) {
@@ -26,15 +28,16 @@ export async function sincronizarObrigacoesController(req, res) {
             });
         }
 
-        if (!validarData(dataBase)) {
+        if ((dataBase !== undefined && !validarData(dataBase)) || validarContextoFiscal(contexto).length ||
+            (dataBase === undefined && competencia === undefined && anoCalendario === undefined)) {
             return res.status(400).json({
-                mensagem: "Informe dataBase no formato AAAA-MM-DD."
+                mensagem: "Informe competência AAAA-MM e/ou anoCalendario inteiro. dataBase legada, se enviada, deve ser AAAA-MM-DD e não calcula prazos fiscais."
             });
         }
 
         const resultado = await sincronizarObrigacoes(
             id,
-            dataBase,
+            contexto,
             req.usuario.id
         );
 

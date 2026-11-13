@@ -1,3 +1,4 @@
+import { identificarRegra } from "../services/vencimentoService.js";
 
 import { db } from "../prisma/db.ts";
 import { executarMotor } from "../services/motorAplicabilidade.js";
@@ -106,7 +107,12 @@ export async function listarObrigacoesAplicaveis(req, res) {
                     prazo: detalhes.prazo,
                     orgaoRelacionado: detalhes.orgaoRelacionado,
                     status: vinculo.status,
-                    vencimento: vinculo?.vencimento ?? null
+                    vencimento: vinculo?.vencimento ?? null,
+                    regraVencimento: identificarRegra(detalhes),
+                    vencimentoTipo: vinculo?.vencimento ? "persistido" : "nao_calculavel",
+                    vencimentoAviso: vinculo?.vencimento
+                        ? "Data cadastrada e preservada; origem e competência não registradas no vínculo. Confirme na guia oficial."
+                        : "Sem prazo calculado. Informe o período fiscal e confira se há regra implementada."
                 };
             });
 
